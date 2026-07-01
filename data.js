@@ -71,23 +71,33 @@ const SCHEDULES = {
     ],
   },
   '2026-08-06': {
-    title: '다시 다같이 · 짧은 여행',
+    title: '충청도 여행 · 1일차',
     items: [
-      { time: '09:00', icon: '🧳', title: '여행 준비',        sub: '1박 2일 근교 여행 짐 싸기', tag: '가족' },
-      { time: '11:00', icon: '🚗', title: '출발',             sub: '근교 리조트 / 바다', tag: '가족' },
-      { time: '13:00', icon: '🍜', title: '점심 (휴게소)',     sub: '가는 길에', tag: '식사' },
-      { time: '15:00', icon: '🏖️', title: '체크인 & 물놀이',   sub: '하연·재연 신나는 시간', tag: '가족' },
+      { time: '09:00', icon: '🧳', title: '여행 준비',        sub: '충청도 1박 2일 짐 싸기', tag: '가족' },
+      { time: '10:30', icon: '🚗', title: '충청도로 출발',     sub: '숙박 예약 완료 ✅', tag: '여행' },
+      { time: '12:30', icon: '🍜', title: '점심 (휴게소)',     sub: '가는 길에', tag: '식사' },
+      { time: '15:00', icon: '🏨', title: '숙소 체크인',       sub: '예약된 숙소 · 짐 풀기', tag: '숙박' },
+      { time: '16:30', icon: '🏞️', title: '오후 나들이',       sub: '주변 관광 / 물놀이', tag: '가족' },
       { time: '19:00', icon: '🦞', title: '저녁',             sub: '현지 맛집', tag: '식사' },
     ],
   },
-  '2026-08-08': {
-    title: '휴가 마지막 날',
+  '2026-08-07': {
+    title: '충청도 여행 · 2일차',
     items: [
-      { time: '09:00', icon: '🥞', title: '조식',             sub: '리조트 조식 뷔페', tag: '가족' },
-      { time: '11:00', icon: '📸', title: '마지막 물놀이',     sub: '체크아웃 전 한 번 더', tag: '가족' },
-      { time: '12:00', icon: '🧾', title: '체크아웃',         sub: '짐 정리 · 출발', tag: '여행' },
-      { time: '14:00', icon: '🍚', title: '점심 & 복귀',       sub: '오는 길 식사', tag: '식사' },
-      { time: '17:00', icon: '🏠', title: '집 도착',          sub: '여름 휴가 마무리', tag: '집' },
+      { time: '09:00', icon: '🥞', title: '조식',             sub: '숙소에서', tag: '숙박' },
+      { time: '10:30', icon: '📸', title: '오전 관광',        sub: '체크아웃 전 마지막 코스', tag: '가족' },
+      { time: '11:30', icon: '🧾', title: '체크아웃',         sub: '짐 정리 · 출발 준비', tag: '여행' },
+      { time: '13:00', icon: '🍚', title: '점심 & 복귀',       sub: '오는 길 식사', tag: '식사' },
+      { time: '16:00', icon: '🏠', title: '집 도착',          sub: '충청도 여행 마무리', tag: '집' },
+    ],
+  },
+  '2026-08-08': {
+    title: '집에서 쉬는 날',
+    items: [
+      { time: '10:00', icon: '😴', title: '늦잠 · 휴식',       sub: '여행 피로 풀기', tag: '가족' },
+      { time: '12:30', icon: '🍜', title: '점심',             sub: '집밥 / 배달', tag: '식사' },
+      { time: '15:00', icon: '🧺', title: '여행 뒷정리',       sub: '빨래 · 짐 정리', tag: '집' },
+      { time: '19:00', icon: '🍚', title: '저녁',             sub: '여름 휴가 마무리', tag: '식사' },
     ],
   },
 };
