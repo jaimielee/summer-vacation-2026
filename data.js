@@ -5,91 +5,89 @@
    날짜 형식: 'YYYY-MM-DD'
    ========================================================================= */
 
-/* 달력에 라인(바)으로 표시되는 주요 일정.
-   color 값은 styles.css 의 .bar--{color} 와 연결됩니다.
-   lane 은 바가 쌓이는 세로 줄 위치(겹침 방지). 같은 lane 끼리는 나란히. */
+/* 달력에 표시할 날짜 범위 (이 구간만 달력에 나옵니다) */
+const RANGE = { start: '2026-07-29', end: '2026-08-08' };
+
+/* 달력에 색 라인(바)으로 표시되는 일정 구간.
+   서로 겹치지 않고 날짜를 나눠 가지므로 한 줄로 이어져 표시됩니다.
+   color 값은 styles.css 의 .bar--{color} 와 연결됩니다. */
 const EVENTS = [
-  { id: 'move',      label: '📦 이사',            start: '2026-07-27', end: '2026-07-27', color: 'move',     lane: 0, person: '가족' },
-  { id: 'jiyoung1',  label: '지영 휴가 1차',       start: '2026-07-29', end: '2026-07-31', color: 'jiyoung',  lane: 1, person: '지영' },
-  { id: 'jaeyeon',   label: '재연 방학',          start: '2026-07-28', end: '2026-07-31', color: 'jaeyeon',  lane: 2, person: '재연' },
-  { id: 'hayeon',    label: '하연 방학',          start: '2026-07-30', end: '2026-08-07', color: 'hayeon',   lane: 3, person: '하연' },
-  { id: 'jeongmin',  label: '정민 휴가+부분출근',  start: '2026-07-30', end: '2026-08-07', color: 'jeongmin', lane: 4, person: '정민' },
-  { id: 'jiyoung2',  label: '지영 휴가 2차',       start: '2026-08-06', end: '2026-08-07', color: 'jiyoung',  lane: 1, person: '지영' },
+  { id: 'g1', label: '재연+지영', start: '2026-07-29', end: '2026-07-29', color: 'grpA', lane: 0 },
+  { id: 'g2', label: '다같이',    start: '2026-07-30', end: '2026-08-02', color: 'grpB', lane: 0 },
+  { id: 'g3', label: '하연+정민', start: '2026-08-03', end: '2026-08-05', color: 'grpC', lane: 0 },
+  { id: 'g4', label: '다같이',    start: '2026-08-06', end: '2026-08-08', color: 'grpB', lane: 0 },
 ];
 
-/* 달력에 표시할 월 (연, 월[1~12]) */
-const MONTHS = [
-  { year: 2026, month: 7 },
-  { year: 2026, month: 8 },
+/* 범례 (색상 설명). 위 color 와 맞춥니다. */
+const LEGEND = [
+  { color: 'grpA', label: '재연 + 지영' },
+  { color: 'grpB', label: '다같이' },
+  { color: 'grpC', label: '하연 + 정민' },
 ];
 
 /* -------------------------------------------------------------------------
    날짜별 상세 시간표 (샘플).
-   키: 'YYYY-MM-DD'
-   각 항목: { time, icon, title, sub, tag }
-   여기에 없는 날짜는 그 날 진행 중인 일정으로 자동 생성됩니다.
+   키: 'YYYY-MM-DD'  ·  항목: { time, icon, title, sub, tag }
+   여기에 없는 날짜는 그날의 일정으로 자동 생성됩니다.
    ------------------------------------------------------------------------- */
 const SCHEDULES = {
-  '2026-07-27': {
-    title: '이사 D-Day',
-    items: [
-      { time: '08:00', icon: '📦', title: '이삿짐 포장 시작',     sub: '포장이사 업체 도착 · 파손주의 물품 별도 표시', tag: '이사' },
-      { time: '10:30', icon: '🚚', title: '짐 상차 & 출발',       sub: '기존 집 → 새 집 이동', tag: '이사' },
-      { time: '12:30', icon: '🍜', title: '점심 (간단히)',        sub: '가까운 곳에서 국수 한 그릇', tag: '식사' },
-      { time: '14:00', icon: '🏠', title: '새 집 짐 정리',        sub: '가구 배치 · 주방/침실 우선', tag: '이사' },
-      { time: '18:00', icon: '🧾', title: '잔금 & 정산',          sub: '이사비 결제 · 관리사무소 인사', tag: '정산' },
-      { time: '19:30', icon: '🍕', title: '첫날 저녁',            sub: '배달 음식으로 가볍게 · 짐 사이에서', tag: '식사' },
-    ],
-  },
-  '2026-07-28': {
-    title: '재연 방학 시작',
-    items: [
-      { time: '09:00', icon: '📦', title: '이사 뒷정리',          sub: '박스 정리 · 재활용 분리배출', tag: '집' },
-      { time: '11:00', icon: '🎒', title: '재연 방학 시작',        sub: '방학 숙제 계획 세우기', tag: '재연' },
-      { time: '13:00', icon: '🍱', title: '점심',                 sub: '새 동네 맛집 탐방', tag: '식사' },
-      { time: '15:00', icon: '🛒', title: '생활용품 장보기',       sub: '새 집 필요한 것들 · 마트', tag: '집' },
-      { time: '19:00', icon: '🍚', title: '저녁 & 휴식',          sub: '가족 저녁 · 짐 정리 마무리', tag: '식사' },
-    ],
-  },
   '2026-07-29': {
-    title: '지영 휴가 1차 시작',
+    title: '재연·지영 먼저 시작',
     items: [
-      { time: '09:30', icon: '☕', title: '느긋한 아침',           sub: '지영 휴가 첫날 · 브런치', tag: '지영' },
-      { time: '11:00', icon: '🏊', title: '아이들과 물놀이',        sub: '동네 수영장 / 워터파크', tag: '재연' },
-      { time: '13:30', icon: '🍔', title: '점심',                 sub: '아이들 좋아하는 곳', tag: '식사' },
-      { time: '16:00', icon: '🎡', title: '오후 나들이',           sub: '가까운 놀이시설 or 카페', tag: '가족' },
-      { time: '19:30', icon: '🍖', title: '저녁 외식',             sub: '이사 & 방학 자축', tag: '식사' },
+      { time: '09:30', icon: '☕', title: '느긋한 아침',      sub: '지영 휴가 첫날 · 브런치', tag: '지영' },
+      { time: '11:00', icon: '🏊', title: '재연과 물놀이',     sub: '동네 수영장 / 키즈풀', tag: '재연' },
+      { time: '13:30', icon: '🍔', title: '점심',             sub: '재연이 좋아하는 곳', tag: '식사' },
+      { time: '16:00', icon: '🎡', title: '오후 나들이',       sub: '가까운 놀이시설 · 카페', tag: '가족' },
+      { time: '19:30', icon: '🍖', title: '저녁 외식',         sub: '휴가 시작 자축', tag: '식사' },
     ],
   },
   '2026-07-30': {
-    title: '온 가족 방학·휴가 겹치는 날',
+    title: '다같이 모인 첫날',
     items: [
-      { time: '08:30', icon: '🥐', title: '아침',                 sub: '온 가족 모처럼 함께', tag: '가족' },
-      { time: '10:00', icon: '💼', title: '정민 부분출근',          sub: '오전 재택/출근 · 오후 합류 예정', tag: '정민' },
-      { time: '10:30', icon: '🏫', title: '하연 방학 시작',         sub: '방학 첫날 · 늦잠 허용', tag: '하연' },
-      { time: '13:00', icon: '🍝', title: '점심',                 sub: '집에서 파스타', tag: '식사' },
-      { time: '15:00', icon: '🌳', title: '공원 산책',            sub: '새 동네 탐방 겸', tag: '가족' },
-      { time: '19:00', icon: '🍲', title: '저녁',                 sub: '정민 합류 · 다 같이', tag: '식사' },
+      { time: '08:30', icon: '🥐', title: '온 가족 아침',      sub: '모처럼 다 같이', tag: '가족' },
+      { time: '10:30', icon: '🚗', title: '나들이 출발',       sub: '근교 드라이브 / 체험', tag: '가족' },
+      { time: '13:00', icon: '🍝', title: '점심',             sub: '가는 길 맛집', tag: '식사' },
+      { time: '15:30', icon: '🌳', title: '오후 활동',         sub: '공원 · 물놀이', tag: '가족' },
+      { time: '19:00', icon: '🍲', title: '저녁',             sub: '다 같이 저녁', tag: '식사' },
+    ],
+  },
+  '2026-08-01': {
+    title: '다같이 · 주말 나들이',
+    items: [
+      { time: '09:00', icon: '🥞', title: '주말 아침',        sub: '팬케이크 브런치', tag: '가족' },
+      { time: '11:00', icon: '🎢', title: '테마파크 / 체험',   sub: '아이들과 하루 종일', tag: '가족' },
+      { time: '13:00', icon: '🍱', title: '점심',             sub: '현장에서', tag: '식사' },
+      { time: '18:00', icon: '🍗', title: '저녁',             sub: '집에 와서 배달', tag: '식사' },
+    ],
+  },
+  '2026-08-03': {
+    title: '하연·정민 데이',
+    items: [
+      { time: '09:30', icon: '📚', title: '하연 방학 숙제',     sub: '오전에 조금 · 독서', tag: '하연' },
+      { time: '11:30', icon: '💼', title: '정민 부분출근 마무리', sub: '오전 업무 · 오후 합류', tag: '정민' },
+      { time: '13:00', icon: '🍜', title: '점심',             sub: '하연이랑 둘이', tag: '식사' },
+      { time: '15:00', icon: '🎨', title: '오후 활동',         sub: '박물관 / 공방 체험', tag: '하연' },
+      { time: '19:00', icon: '🍚', title: '저녁',             sub: '정민 합류 · 다 같이', tag: '식사' },
     ],
   },
   '2026-08-06': {
-    title: '지영 휴가 2차 시작',
+    title: '다시 다같이 · 짧은 여행',
     items: [
-      { time: '09:00', icon: '🧳', title: '짧은 여행 준비',        sub: '1박 2일 근교 여행 짐 싸기', tag: '지영' },
-      { time: '11:00', icon: '🚗', title: '출발',                 sub: '근교 리조트 / 바다', tag: '가족' },
-      { time: '13:00', icon: '🍜', title: '점심 (휴게소)',         sub: '가는 길에', tag: '식사' },
-      { time: '15:00', icon: '🏖️', title: '체크인 & 물놀이',       sub: '하연·재연 신나는 시간', tag: '가족' },
-      { time: '19:00', icon: '🦞', title: '저녁',                 sub: '현지 맛집', tag: '식사' },
+      { time: '09:00', icon: '🧳', title: '여행 준비',        sub: '1박 2일 근교 여행 짐 싸기', tag: '가족' },
+      { time: '11:00', icon: '🚗', title: '출발',             sub: '근교 리조트 / 바다', tag: '가족' },
+      { time: '13:00', icon: '🍜', title: '점심 (휴게소)',     sub: '가는 길에', tag: '식사' },
+      { time: '15:00', icon: '🏖️', title: '체크인 & 물놀이',   sub: '하연·재연 신나는 시간', tag: '가족' },
+      { time: '19:00', icon: '🦞', title: '저녁',             sub: '현지 맛집', tag: '식사' },
     ],
   },
-  '2026-08-07': {
+  '2026-08-08': {
     title: '휴가 마지막 날',
     items: [
-      { time: '09:00', icon: '🥞', title: '조식',                 sub: '리조트 조식 뷔페', tag: '가족' },
-      { time: '11:00', icon: '📸', title: '오전 액티비티',          sub: '체크아웃 전 마지막 물놀이', tag: '가족' },
-      { time: '12:00', icon: '🧾', title: '체크아웃',             sub: '짐 정리 · 출발 준비', tag: '여행' },
-      { time: '14:00', icon: '🍚', title: '점심 & 복귀',           sub: '오는 길 식사', tag: '식사' },
-      { time: '17:00', icon: '🏠', title: '집 도착',              sub: '여름 휴가 마무리 · 정민 복귀 준비', tag: '집' },
+      { time: '09:00', icon: '🥞', title: '조식',             sub: '리조트 조식 뷔페', tag: '가족' },
+      { time: '11:00', icon: '📸', title: '마지막 물놀이',     sub: '체크아웃 전 한 번 더', tag: '가족' },
+      { time: '12:00', icon: '🧾', title: '체크아웃',         sub: '짐 정리 · 출발', tag: '여행' },
+      { time: '14:00', icon: '🍚', title: '점심 & 복귀',       sub: '오는 길 식사', tag: '식사' },
+      { time: '17:00', icon: '🏠', title: '집 도착',          sub: '여름 휴가 마무리', tag: '집' },
     ],
   },
 };

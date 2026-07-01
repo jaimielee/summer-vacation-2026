@@ -8,12 +8,10 @@
   --accent:    #f6931e;   /* 포인트 오렌지 */
   --accent-soft:#fff1e0;
 
-  /* 일정별 색 */
-  --c-move:     #f6931e;
-  --c-jiyoung-c:#ec6a9c;
-  --c-jaeyeon:  #4aa8e0;
-  --c-hayeon:   #37b98a;
-  --c-jeongmin: #8a6fe0;
+  /* 일정 그룹별 색 */
+  --c-grpA: #4aa8e0;   /* 재연+지영 */
+  --c-grpB: #ec6a9c;   /* 다같이 */
+  --c-grpC: #37b98a;   /* 하연+정민 */
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -56,26 +54,26 @@ html, body {
 }
 .top .emoji { font-size: 26px; }
 
-/* ---------- 범례 ---------- */
+/* ---------- 범례 (달력 카드 상단) ---------- */
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 10px;
-  background: rgba(255,255,255,0.16);
-  border-radius: 14px;
-  padding: 10px 12px;
-  margin-bottom: 16px;
+  gap: 8px 14px;
+  justify-content: center;
+  padding: 2px 2px 14px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--line);
 }
 .legend .chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
-  color: #fff;
-  font-weight: 500;
+  font-size: 12.5px;
+  color: var(--ink);
+  font-weight: 600;
 }
 .legend .dot {
-  width: 10px; height: 10px; border-radius: 3px; display: inline-block;
+  width: 12px; height: 12px; border-radius: 4px; display: inline-block;
 }
 
 /* ---------- 월 카드 ---------- */
@@ -129,6 +127,10 @@ html, body {
   display: flex; align-items: center; justify-content: center;
   border-radius: 50%;
 }
+.day .num.first {
+  width: auto; padding: 0 7px; border-radius: 13px;
+  font-size: 11.5px; font-weight: 700;
+}
 .day.sun .num { color: #e8607a; }
 .day.sat .num { color: #4aa8e0; }
 .day.today .num {
@@ -169,17 +171,13 @@ html, body {
 .bar.cont-left  { border-top-left-radius: 0; border-bottom-left-radius: 0; }
 .bar.cont-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
 
-.bar--move     { background: var(--c-move); }
-.bar--jiyoung  { background: var(--c-jiyoung-c); }
-.bar--jaeyeon  { background: var(--c-jaeyeon); }
-.bar--hayeon   { background: var(--c-hayeon); }
-.bar--jeongmin { background: var(--c-jeongmin); }
+.bar--grpA { background: var(--c-grpA); }
+.bar--grpB { background: var(--c-grpB); }
+.bar--grpC { background: var(--c-grpC); }
 
-.dot--move     { background: var(--c-move); }
-.dot--jiyoung  { background: var(--c-jiyoung-c); }
-.dot--jaeyeon  { background: var(--c-jaeyeon); }
-.dot--hayeon   { background: var(--c-hayeon); }
-.dot--jeongmin { background: var(--c-jeongmin); }
+.dot--grpA { background: var(--c-grpA); }
+.dot--grpB { background: var(--c-grpB); }
+.dot--grpC { background: var(--c-grpC); }
 
 /* ---------- 상세 시트 ---------- */
 .sheet-bg {

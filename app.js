@@ -30,52 +30,48 @@ function eventsOnDate(dateStr) {
   });
 }
 
-/* --- 달력 그리기 --- */
+/* --- 달력 그리기 (RANGE 구간만, 한 줄 스트립) --- */
 function buildCalendar() {
   const root = document.getElementById('calendar');
   root.innerHTML = '';
   const today = todayStr();
 
-  MONTHS.forEach(({ year, month }) => {
-    const monthEl = document.createElement('div');
-    monthEl.className = 'month';
-
-    const h2 = document.createElement('h2');
-    h2.textContent = `${year}년 ${month}월`;
-    monthEl.appendChild(h2);
-
-    // 요일 헤더
-    const dow = document.createElement('div');
-    dow.className = 'dow';
-    DOW_LABELS.forEach((d, i) => {
-      const s = document.createElement('span');
-      s.textContent = d;
-      if (i === 0) s.classList.add('sun');
-      if (i === 6) s.classList.add('sat');
-      dow.appendChild(s);
-    });
-    monthEl.appendChild(dow);
-
-    // 주 단위로 분해
-    const first = new Date(year, month - 1, 1);
-    const daysInMonth = new Date(year, month, 0).getDate();
-    const startDow = first.getDay(); // 0=일
-
-    const cells = [];
-    for (let i = 0; i < startDow; i++) cells.push(null);
-    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-    while (cells.length % 7 !== 0) cells.push(null);
-
-    for (let w = 0; w < cells.length / 7; w++) {
-      const weekCells = cells.slice(w * 7, w * 7 + 7);
-      monthEl.appendChild(buildWeek(year, month, weekCells, today));
-    }
-
-    root.appendChild(monthEl);
+  // 요일 헤더 (한 번만)
+  const dow = document.getElementById('dow');
+  dow.innerHTML = '';
+  DOW_LABELS.forEach((d, i) => {
+    const s = document.createElement('span');
+    s.textContent = d;
+    if (i === 0) s.classList.add('sun');
+    if (i === 6) s.classList.add('sat');
+    dow.appendChild(s);
   });
+
+  const rangeStart = parseYmd(RANGE.start);
+  const rangeEnd = parseYmd(RANGE.end);
+
+  // 그리드 시작 = 범위 시작일이 속한 주의 일요일
+  const cur = new Date(rangeStart);
+  cur.setDate(cur.getDate() - cur.getDay());
+
+  while (cur.getTime() <= rangeEnd.getTime()) {
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(cur);
+      d.setDate(cur.getDate() + i);
+      weekDates.push(d);
+    }
+    root.appendChild(buildWeek(weekDates, rangeStart, rangeEnd, today));
+    cur.setDate(cur.getDate() + 7);
+  }
 }
 
-function buildWeek(year, month, weekCells, today) {
+function inRange(date, rangeStart, rangeEnd) {
+  const t = date.getTime();
+  return t >= rangeStart.getTime() && t <= rangeEnd.getTime();
+}
+
+function buildWeek(weekDates, rangeStart, rangeEnd, today) {
   const week = document.createElement('div');
   week.className = 'week';
 
@@ -83,15 +79,15 @@ function buildWeek(year, month, weekCells, today) {
   const daysRow = document.createElement('div');
   daysRow.className = 'week-days';
 
-  weekCells.forEach((d, i) => {
+  weekDates.forEach((date, i) => {
     const cell = document.createElement('div');
     cell.className = 'day';
-    if (d === null) {
+    if (!inRange(date, rangeStart, rangeEnd)) {
       cell.classList.add('empty');
       daysRow.appendChild(cell);
       return;
     }
-    const dateStr = ymd(year, month, d);
+    const dateStr = fmtYmd(date);
     if (i === 0) cell.classList.add('sun');
     if (i === 6) cell.classList.add('sat');
     if (dateStr === today) cell.classList.add('today');
@@ -101,7 +97,11 @@ function buildWeek(year, month, weekCells, today) {
 
     const num = document.createElement('div');
     num.className = 'num';
-    num.textContent = d;
+    // 매월 1일은 "8/1" 처럼 월을 함께 표시해 헷갈리지 않게
+    num.textContent = date.getDate() === 1
+      ? `${date.getMonth() + 1}/1`
+      : date.getDate();
+    if (date.getDate() === 1) num.classList.add('first');
     cell.appendChild(num);
 
     cell.addEventListener('click', () => openSheet(dateStr));
@@ -113,7 +113,6 @@ function buildWeek(year, month, weekCells, today) {
   const lanes = document.createElement('div');
   lanes.className = 'lanes';
 
-  // 이 주에 걸치는 이벤트를 lane 순서대로
   const maxLane = Math.max(...EVENTS.map(e => e.lane));
   for (let laneIdx = 0; laneIdx <= maxLane; laneIdx++) {
     const laneEvents = EVENTS.filter(e => e.lane === laneIdx);
@@ -122,7 +121,7 @@ function buildWeek(year, month, weekCells, today) {
     let placed = false;
 
     laneEvents.forEach(ev => {
-      const seg = segmentInWeek(ev, year, month, weekCells);
+      const seg = segmentInWeek(ev, weekDates, rangeStart, rangeEnd);
       if (!seg) return;
       placed = true;
       const bar = document.createElement('div');
@@ -130,7 +129,6 @@ function buildWeek(year, month, weekCells, today) {
       if (seg.contLeft) bar.classList.add('cont-left');
       if (seg.contRight) bar.classList.add('cont-right');
       bar.style.gridColumn = `${seg.startCol} / span ${seg.span}`;
-      // 이벤트가 이 주에서 시작하면 라벨, 이어지는 주면 화살표
       bar.textContent = seg.showLabel ? ev.label : '‹ ' + ev.label;
       bar.title = ev.label;
       bar.addEventListener('click', (e) => {
@@ -140,7 +138,6 @@ function buildWeek(year, month, weekCells, today) {
       laneEl.appendChild(bar);
     });
 
-    // 빈 레인도 자리 유지 (바 정렬 안정) — 단, 이 주에 아무 이벤트도 없으면 접기
     if (placed) lanes.appendChild(laneEl);
   }
 
@@ -148,16 +145,18 @@ function buildWeek(year, month, weekCells, today) {
   return week;
 }
 
-/* 이벤트가 이 주(weekCells)에서 차지하는 컬럼 계산.
+/* 이벤트가 이 주에서 차지하는 컬럼 계산 (범위 밖 칸은 제외).
    반환: {startCol(1~7), span, contLeft, contRight, showLabel} 또는 null */
-function segmentInWeek(ev, year, month, weekCells) {
+function segmentInWeek(ev, weekDates, rangeStart, rangeEnd) {
   const evStart = parseYmd(ev.start).getTime();
   const evEnd = parseYmd(ev.end).getTime();
 
   let startIdx = -1, endIdx = -1;
-  weekCells.forEach((d, i) => {
-    if (d === null) return;
-    const t = parseYmd(ymd(year, month, d)).getTime();
+  const inRangeIdx = [];
+  weekDates.forEach((date, i) => {
+    if (!inRange(date, rangeStart, rangeEnd)) return;
+    inRangeIdx.push(i);
+    const t = date.getTime();
     if (t >= evStart && t <= evEnd) {
       if (startIdx === -1) startIdx = i;
       endIdx = i;
@@ -165,11 +164,8 @@ function segmentInWeek(ev, year, month, weekCells) {
   });
   if (startIdx === -1) return null;
 
-  // 이 주 첫 유효일 / 마지막 유효일
-  const firstValidDay = weekCells.find(d => d !== null);
-  const lastValidDay = [...weekCells].reverse().find(d => d !== null);
-  const weekFirst = parseYmd(ymd(year, month, firstValidDay)).getTime();
-  const weekLast = parseYmd(ymd(year, month, lastValidDay)).getTime();
+  const weekFirst = weekDates[inRangeIdx[0]].getTime();
+  const weekLast = weekDates[inRangeIdx[inRangeIdx.length - 1]].getTime();
 
   return {
     startCol: startIdx + 1,
@@ -202,8 +198,8 @@ function openSheet(dateStr) {
   evs.forEach(ev => {
     const t = document.createElement('span');
     t.className = 't';
-    t.style.background = `var(--c-${ev.color === 'jiyoung' ? 'jiyoung-c' : ev.color})`;
-    t.textContent = ev.label.replace(/^📦 /, '');
+    t.style.background = `var(--c-${ev.color})`;
+    t.textContent = ev.label;
     tagWrap.appendChild(t);
   });
 
@@ -269,20 +265,13 @@ function buildTlItem(it, idx, total) {
 /* 상세가 없는 날: 진행 중 일정으로 간단한 하루 자동 생성 */
 function fallbackItems(dateStr, evs) {
   if (!evs.length) return [];
-  const items = [
-    { time: '09:00', icon: '☀️', title: '아침 · 하루 시작', sub: '오늘 일정을 확인해요', tag: '일상' },
+  const label = evs[0].label;
+  return [
+    { time: '09:00', icon: '☀️', title: '아침 · 하루 시작', sub: `오늘은 「${label}」 일정`, tag: label },
+    { time: '12:30', icon: '🍽️', title: '점심', sub: '맛집 탐방', tag: '식사' },
+    { time: '15:00', icon: '🌳', title: '오후 활동', sub: '가까운 곳 나들이', tag: label },
+    { time: '19:00', icon: '🍚', title: '저녁', sub: '다 같이 저녁', tag: '식사' },
   ];
-  evs.forEach(ev => {
-    items.push({
-      time: '',
-      icon: ev.color === 'move' ? '📦' : '📌',
-      title: ev.label.replace(/^📦 /, ''),
-      sub: `${ev.person} · ${ev.start} ~ ${ev.end}`,
-      tag: ev.person,
-    });
-  });
-  items.push({ time: '19:00', icon: '🍚', title: '저녁 · 마무리', sub: '가족과 함께', tag: '식사' });
-  return items;
 }
 
 function closeSheet() {
@@ -294,15 +283,8 @@ function closeSheet() {
 /* --- 범례 --- */
 function buildLegend() {
   const legend = document.getElementById('legend');
-  const seen = new Set();
-  const order = [
-    { color: 'move', label: '이사' },
-    { color: 'jiyoung', label: '지영 휴가' },
-    { color: 'jaeyeon', label: '재연 방학' },
-    { color: 'hayeon', label: '하연 방학' },
-    { color: 'jeongmin', label: '정민 휴가' },
-  ];
-  order.forEach(o => {
+  legend.innerHTML = '';
+  LEGEND.forEach(o => {
     const chip = document.createElement('span');
     chip.className = 'chip';
     const dot = document.createElement('span');
