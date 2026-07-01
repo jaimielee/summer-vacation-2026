@@ -61,13 +61,26 @@ const SCHEDULES = {
     ],
   },
   '2026-08-03': {
-    title: '하연·정민 데이',
+    title: '대구 삼촌집 · 1일차',
     items: [
-      { time: '09:30', icon: '📚', title: '하연 방학 숙제',     sub: '오전에 조금 · 독서', tag: '하연' },
-      { time: '11:30', icon: '💼', title: '정민 부분출근 마무리', sub: '오전 업무 · 오후 합류', tag: '정민' },
-      { time: '13:00', icon: '🍜', title: '점심',             sub: '하연이랑 둘이', tag: '식사' },
-      { time: '15:00', icon: '🎨', title: '오후 활동',         sub: '박물관 / 공방 체험', tag: '하연' },
-      { time: '19:00', icon: '🍚', title: '저녁',             sub: '정민 합류 · 다 같이', tag: '식사' },
+      { time: '10:00', icon: '🚗', title: '부천 출발',         sub: '대구 삼촌집으로', tag: '여행' },
+      { time: '11:00', icon: '🏭', title: '평택공장 들르기',    sub: '가는 길에 잠깐', tag: '방문' },
+      { time: '13:00', icon: '🍚', title: '점심',             sub: '평택 근처에서', tag: '식사' },
+      { time: '14:30', icon: '🅿️', title: '천안아산역 주차',    sub: '차 두고 기차로 환승', tag: '이동' },
+      { time: '15:00', icon: '🚄', title: 'KTX 탑승',         sub: '천안아산 → 동대구', tag: '기차' },
+      { time: '16:30', icon: '🚉', title: '대구 도착',         sub: '삼촌집으로', tag: '여행' },
+      { time: '18:00', icon: '🍖', title: '삼촌집 저녁',        sub: '오랜만에 온 가족', tag: '식사' },
+      { time: '20:00', icon: '🎉', title: '대구에서 놀기',      sub: '사촌들과 밤늦게까지', tag: '가족' },
+    ],
+  },
+  '2026-08-04': {
+    title: '대구 삼촌집 · 2일차',
+    items: [
+      { time: '09:00', icon: '🥞', title: '아침',             sub: '삼촌집에서', tag: '식사' },
+      { time: '10:00', icon: '🚄', title: '대구 출발',         sub: '동대구 → 천안아산 (KTX)', tag: '기차' },
+      { time: '11:30', icon: '🅿️', title: '천안아산역 도착',    sub: '주차한 차 회수', tag: '이동' },
+      { time: '12:30', icon: '🍜', title: '점심',             sub: '오는 길에', tag: '식사' },
+      { time: '16:00', icon: '🏠', title: '부천 도착',         sub: '대구 여행 마무리', tag: '집' },
     ],
   },
   '2026-08-06': {
