@@ -95,6 +95,8 @@ function buildWeek(weekDates, rangeStart, rangeEnd, today) {
     const evs = eventsOnDate(dateStr);
     if (evs.length) cell.classList.add('has-ev');
 
+    cell.dataset.date = dateStr;
+
     const num = document.createElement('div');
     num.className = 'num';
     // 매월 1일은 "8/1" 처럼 월을 함께 표시해 헷갈리지 않게
@@ -104,7 +106,7 @@ function buildWeek(weekDates, rangeStart, rangeEnd, today) {
     if (date.getDate() === 1) num.classList.add('first');
     cell.appendChild(num);
 
-    cell.addEventListener('click', () => openSheet(dateStr));
+    cell.addEventListener('click', () => selectByDate(dateStr));
     daysRow.appendChild(cell);
   });
   week.appendChild(daysRow);
@@ -133,7 +135,7 @@ function buildWeek(weekDates, rangeStart, rangeEnd, today) {
       bar.title = ev.label;
       bar.addEventListener('click', (e) => {
         e.stopPropagation();
-        openSheet(ev.start);
+        selectByDate(ev.start);
       });
       laneEl.appendChild(bar);
     });
@@ -176,47 +178,69 @@ function segmentInWeek(ev, weekDates, rangeStart, rangeEnd) {
   };
 }
 
-/* --- 상세 시트 --- */
-const sheet = document.getElementById('sheet');
-const sheetBg = document.getElementById('sheet-bg');
+/* --- 상세 일정 (달력 아래 인라인 표시) --- */
 
-function openSheet(dateStr) {
+/* 날짜 선택: 달력에서 해당 칸을 강조하고, 아래에 상세를 그린다 */
+function selectByDate(dateStr) {
+  document.querySelectorAll('.day.selected').forEach(d => d.classList.remove('selected'));
+  const cell = document.querySelector(`.day[data-date="${dateStr}"]`);
+  if (cell) cell.classList.add('selected');
+  renderDetail(dateStr);
+}
+
+function renderDetail(dateStr) {
   const date = parseYmd(dateStr);
   const weekday = DOW_LABELS[date.getDay()];
   const data = SCHEDULES[dateStr];
   const evs = eventsOnDate(dateStr);
 
-  // 헤더
-  document.getElementById('sheet-date').textContent =
-    `${date.getMonth() + 1}월 ${date.getDate()}일 (${weekday})`;
-  document.getElementById('sheet-title').textContent =
-    (data && data.title) || (evs.length ? evs.map(e => e.label.replace(/^📦 /, '')).join(' · ') : '이 날의 계획');
+  const wrap = document.getElementById('detail');
+  wrap.innerHTML = '';
 
-  // 태그 (진행 중 일정)
-  const tagWrap = document.getElementById('sheet-tags');
-  tagWrap.innerHTML = '';
-  evs.forEach(ev => {
-    const t = document.createElement('span');
-    t.className = 't';
-    t.style.background = `var(--c-${ev.color})`;
-    t.textContent = ev.label;
-    tagWrap.appendChild(t);
-  });
+  const card = document.createElement('div');
+  card.className = 'detail-card';
+
+  // 헤더
+  const head = document.createElement('div');
+  head.className = 'detail-head';
+
+  const big = document.createElement('div');
+  big.className = 'date-big';
+  big.textContent = `${date.getMonth() + 1}월 ${date.getDate()}일 (${weekday})`;
+  head.appendChild(big);
+
+  const sub = document.createElement('p');
+  sub.className = 'date-sub';
+  sub.textContent =
+    (data && data.title) || (evs.length ? evs.map(e => e.label).join(' · ') : '이 날의 계획');
+  head.appendChild(sub);
+
+  if (evs.length) {
+    const tagWrap = document.createElement('div');
+    tagWrap.className = 'tags';
+    evs.forEach(ev => {
+      const t = document.createElement('span');
+      t.className = 't';
+      t.style.background = `var(--c-${ev.color})`;
+      t.textContent = ev.label;
+      tagWrap.appendChild(t);
+    });
+    head.appendChild(tagWrap);
+  }
+  card.appendChild(head);
 
   // 타임라인
-  const tl = document.getElementById('timeline');
-  tl.innerHTML = '';
+  const tl = document.createElement('div');
+  tl.className = 'timeline';
   const items = (data && data.items) || fallbackItems(dateStr, evs);
-
   if (!items.length) {
-    tl.innerHTML = '<div class="empty-note">아직 등록된 일정이 없어요.<br>data.js 에 추가해 주세요 ✍️</div>';
+    tl.innerHTML = '<div class="empty-note">등록된 일정이 없어요.</div>';
   } else {
     items.forEach((it, i) => tl.appendChild(buildTlItem(it, i, items.length)));
   }
+  card.appendChild(tl);
 
-  sheetBg.classList.add('open');
-  sheet.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  wrap.appendChild(card);
 }
 
 function buildTlItem(it, idx, total) {
@@ -274,31 +298,8 @@ function fallbackItems(dateStr, evs) {
   ];
 }
 
-function closeSheet() {
-  sheetBg.classList.remove('open');
-  sheet.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* --- 범례 --- */
-function buildLegend() {
-  const legend = document.getElementById('legend');
-  legend.innerHTML = '';
-  LEGEND.forEach(o => {
-    const chip = document.createElement('span');
-    chip.className = 'chip';
-    const dot = document.createElement('span');
-    dot.className = `dot dot--${o.color}`;
-    chip.appendChild(dot);
-    chip.appendChild(document.createTextNode(o.label));
-    legend.appendChild(chip);
-  });
-}
-
 /* --- 시작 --- */
 document.addEventListener('DOMContentLoaded', () => {
-  buildLegend();
   buildCalendar();
-  document.getElementById('sheet-back').addEventListener('click', closeSheet);
-  sheetBg.addEventListener('click', closeSheet);
+  selectByDate(RANGE.start); // 첫날 상세를 기본으로 표시
 });
