@@ -131,7 +131,8 @@ function buildWeek(weekDates, rangeStart, rangeEnd, today) {
       if (seg.contLeft) bar.classList.add('cont-left');
       if (seg.contRight) bar.classList.add('cont-right');
       bar.style.gridColumn = `${seg.startCol} / span ${seg.span}`;
-      bar.textContent = seg.showLabel ? ev.label : '‹ ' + ev.label;
+      // 이어지는 구간(이전 주에서 계속)은 색 바만 잇고 라벨은 반복하지 않음
+      bar.textContent = seg.showLabel ? ev.label : '';
       bar.title = ev.label;
       bar.addEventListener('click', (e) => {
         e.stopPropagation();

@@ -12,10 +12,10 @@ const RANGE = { start: '2026-07-29', end: '2026-08-08' };
    서로 겹치지 않고 날짜를 나눠 가지므로 한 줄로 이어져 표시됩니다.
    color 값은 styles.css 의 .bar--{color} 와 연결됩니다. */
 const EVENTS = [
-  { id: 'g1', label: '재연+지영', start: '2026-07-29', end: '2026-07-29', color: 'grpA', lane: 0 },
-  { id: 'g2', label: '다같이',    start: '2026-07-30', end: '2026-08-02', color: 'grpB', lane: 0 },
-  { id: 'g3', label: '하연+정민', start: '2026-08-03', end: '2026-08-05', color: 'grpC', lane: 0 },
-  { id: 'g4', label: '다같이',    start: '2026-08-06', end: '2026-08-08', color: 'grpB', lane: 0 },
+  { id: 'g1', label: '재연',   start: '2026-07-29', end: '2026-07-29', color: 'grpA', lane: 0 },
+  { id: 'g2', label: '다같이', start: '2026-07-30', end: '2026-08-02', color: 'grpB', lane: 0 },
+  { id: 'g3', label: '하연',   start: '2026-08-03', end: '2026-08-05', color: 'grpC', lane: 0 },
+  { id: 'g4', label: '다같이', start: '2026-08-06', end: '2026-08-08', color: 'grpB', lane: 0 },
 ];
 
 /* 범례 (색상 설명). 위 color 와 맞춥니다. */

@@ -44,12 +44,19 @@ html, body {
 }
 .cal-title {
   text-align: center;
-  font-size: 19px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 4px 0 12px;
-  padding-bottom: 12px;
+  font-size: 40px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+  margin: 8px 0 16px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--line);
+  background: linear-gradient(105deg, #f6931e 0%, #ec6a9c 52%, #4aa8e0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .dow {
